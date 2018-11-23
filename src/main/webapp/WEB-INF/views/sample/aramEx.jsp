@@ -55,6 +55,7 @@ html, body {
     <div class="container">
   <div id="map" class="map"></div>
   <div class="sidebar">
+    <button id="jsonBtn">JSON 데이터 보기</button>
     <ul id="sortable">
     </ul>
   </div>
@@ -62,9 +63,23 @@ html, body {
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
-    
-    
+ 
         $(document).ready(function() {
+            
+            var poly;
+            var map;
+            var mindMapArr = [];
+            var recommendArr = [];
+            var course = [];
+            var markerArr = [];
+            var recMarkerArr = [];
+            
+            
+            $(".sidebar").on("click", function() {
+                $("#sortable").html(JSON.stringify(course));
+            })
+            
+            
             //get mindmap data
             $.getJSON("/sample/dataEx.json", function(json1) {
                 $.each(json1, function(key, data) {  
@@ -84,7 +99,6 @@ html, body {
         
         // draw path
         function drawPath(arr) {
-            console.dir(arr);
             poly = new google.maps.Polyline({ //선분 모양 설정
                 strokeColor : '#000000',
                 strokeOpacity : 1.0,
@@ -100,6 +114,7 @@ html, body {
         // draw marker
         function drawMarker(arr) {
              for (var i = 0; i < arr.length; i++) {
+                 
                  var marker = new google.maps.Marker({
                      position : arr[i],
                      title : arr[i].title,
@@ -107,11 +122,12 @@ html, body {
                      myPos : arr[i],
                      map : map
                  });
-                 markerArr.push(marker);
+                 markerArr.length < mindMapArr.length ? markerArr.push(marker) : recMarkerArr.push(marker);
                  drawInfoWin(marker);
                  addPath(marker);
             }//end for 
         }
+        
         
         //draw infowindow
         function drawInfoWin(marker) {
@@ -135,8 +151,8 @@ html, body {
         function addPath(marker) {
             google.maps.event.addListener(marker, "click", function() {
                 course.push(marker.myPos);
+                markerArr.push(marker);
                 checkDupl(marker);
-                console.dir(course);
                 drawList(course);
             });
         }
@@ -159,7 +175,7 @@ html, body {
         //draw list
         function drawList(arr) {
             var str = "";
-            $(".sidebar ul").html("");
+            $("#sortable").html("");
             for (var i = 0; i < arr.length; i++) {
                 (function(arr) {
                     str = "<li class='courseList' data-idx ='"+i+"'><span class='ui-icon ui-icon-arrowthick-2-n-s'></span>" 
@@ -182,7 +198,7 @@ html, body {
         //redraw marker
         function redrawMarker(arr){
             for(var i = 0;i < markerArr.length; i++){
-                markerArr[i].setMap(null);
+                arr[i].setMap(null);
                 poly.getPath().pop(arr[i].position);
             }
              for (var i = 0; i < arr.length; i++) { //마인드맵 마커 생성
@@ -191,13 +207,6 @@ html, body {
              }
         }
         
-        
-        var poly;
-        var map;
-        var mindMapArr = [];
-        var recommendArr = [];
-        var course = [];
-        var markerArr = [];
         
         // initialize map
         function initMap() {
@@ -213,6 +222,7 @@ html, body {
             drawList(course);
         }
         
+        // sort list
         $(function () {
             $("#sortable").sortable({
                 update: function() {
@@ -222,7 +232,6 @@ html, body {
                     for(var i = 0; i < liList.length; i++){
                         arr.push($(liList[i]).attr("data-idx"));
                     }
-                    console.log(arr);
                     var temp = [];
                     var tempCourse = [];
                     
@@ -235,11 +244,8 @@ html, body {
                     course = tempCourse;
                     redrawMarker(markerArr);
                     reArrangeIdx();
-                    
-                    console.dir(course);
                 }
             });
-            // $("#sortable").disableSelection();
           });
     </script>
     <script async defer
