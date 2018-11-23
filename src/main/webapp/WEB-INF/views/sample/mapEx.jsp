@@ -55,6 +55,7 @@ html, body {
     <div class="container">
   <div id="map" class="map"></div>
   <div class="sidebar">
+  	<button id="link">JSON download</button>
     <button id="jsonBtn">JSON 데이터 보기</button>
     <ul id="sortable">
     </ul>
@@ -62,7 +63,19 @@ html, body {
 </div>
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-    
+    <script src="https://www.gstatic.com/firebasejs/5.5.9/firebase.js"></script>
+	<script>
+	  // Initialize Firebase
+	  var config = {
+	    apiKey: "AIzaSyCgzLno3i5zPxKzaE5-9qXrt_FZWCwK8tE",
+	    authDomain: "travel-simulator.firebaseapp.com",
+	    databaseURL: "https://travel-simulator.firebaseio.com",
+	    projectId: "travel-simulator",
+	    storageBucket: "travel-simulator.appspot.com",
+	    messagingSenderId: "105538800439"
+	  };
+	  firebase.initializeApp(config);
+	</script>
     <script>
     
     var map, poly;
@@ -73,6 +86,24 @@ html, body {
     var recommendMarkerArr = [];
     
     var sortableUL = $("#sortable");
+    
+    
+    var fireCourse = [];
+    var rootRef = firebase.database().ref();
+    
+    for (var i = 1; i < 11; i++) {
+    	
+        rootRef.child('users').child(i).once('value', function(data){
+        	
+        	fireCourse.push(data.val())
+            
+        });
+        
+	}
+
+    console.log(fireCourse);
+
+    
         
     // initialize map by callback
     function initMap() {
@@ -86,12 +117,14 @@ html, body {
         //get mindmap data
         $.getJSON("/sample/dataEx.json", function(json1) {
             $.each(json1, function(key, data) {
+            	
+            	
                 mindMapArr.push(data);
                 course.push(data);
                 drawList(course);
                                 
             });
-            
+			console.log(course);
             map = new google.maps.Map(document.getElementById('map'),{center : course[course.length - 1], zoom: 15, minZoom: 13});
             
             drawMarker(course, 1);
@@ -254,6 +287,7 @@ html, body {
     $("#jsonBtn").on("click", function() {
         alert(JSON.stringify(course));
     })
+
     
 </script> 
                 

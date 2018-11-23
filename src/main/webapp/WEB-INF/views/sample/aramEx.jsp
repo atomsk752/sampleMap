@@ -150,6 +150,12 @@ html, body {
         //add path when marker clicked
         function addPath(marker) {
             google.maps.event.addListener(marker, "click", function() {
+            	
+                poly = new google.maps.Polyline({ //선분 모양 설정
+                    strokeColor : '#000000',
+                    strokeOpacity : 1.0,
+                    strokeWeight : 3
+                });
                 course.push(marker.myPos);
                 markerArr.push(marker);
                 checkDupl(marker);
