@@ -55,8 +55,8 @@ html, body {
     <div class="container">
   <div id="map" class="map"></div>
   <div class="sidebar">
-  	<button id="link">JSON download</button>
-    <button id="jsonBtn">JSON 데이터 보기</button>
+  	<button id="jsonRead">JSON 데이터 보기</button>
+    <button id="jsonBtn">JSON 데이터 전송</button>
     <ul id="sortable">
     </ul>
   </div>
@@ -87,22 +87,54 @@ html, body {
     
     var sortableUL = $("#sortable");
     
+    var newKey;
     
-    var fireCourse = [];
-    var rootRef = firebase.database().ref();
-    
-    for (var i = 1; i < 11; i++) {
+    function addCourse(course, callback){
     	
-        rootRef.child('users').child(i).once('value', function(data){
-        	
-        	fireCourse.push(data.val())
-            
-        });
-        
-	}
+    	newKey = firebase.database().ref().child('courses').push(course).key;
+    	
+    	callback(newKey);
+    	
+    }
+     
+    function readCourse(key, callback){
+    	
+    	firebase.database().ref().child('courses/'+key).once("value").then(function(data){
+    		
+    		var result = data.val();
+    		callback(result);
+    	});
+    	
+    }
+    
+    function updateCourse(key, callback){
+    	
+    }
+     
+    
 
-    console.log(fireCourse);
 
+
+    $("#jsonBtn").on("click", function() {
+    	addCourse(course, function(newKey){
+    		console.log(newKey);
+    	});
+    	
+    });
+    
+    $("#jsonRead").on("click", function() {
+        console.log(newKey);
+    	readCourse(newKey, function(data) {
+    		console.log("callback.........................");
+    		console.log("callback.........................");
+    		console.log(data);
+    		console.log("callback.........................");
+    		console.log("callback.........................");
+    		
+    	});
+    	
+
+    });
     
         
     // initialize map by callback
@@ -284,9 +316,7 @@ html, body {
         }
     }   
         
-    $("#jsonBtn").on("click", function() {
-        alert(JSON.stringify(course));
-    })
+
 
     
 </script> 
